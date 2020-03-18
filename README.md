@@ -10,7 +10,7 @@ The repo was developed and tested on a Nvidia RTX 2070. Input images are suppose
 * Python 3
 * PyTorch
 * torchvision
-* tensorboard_logger
+* tensorboard
 * tqdm
 * CUDA* - Not tested on CPU
 

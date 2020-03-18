@@ -4,7 +4,7 @@ import time
 import numpy as np
 
 from tqdm import tqdm
-from tensorboard_logger import configure, log_value
+from torch.utils.tensorboard import SummaryWriter
 
 import torch
 import torch.nn as nn
@@ -69,10 +69,10 @@ def main():
 		#tv.cuda()
 		mse.cuda()
 		bce.cuda()
-	
+
 	if use_tensorboard:
-		configure('log', flush_secs=5)
-	
+		writer = SummaryWriter()
+
 	# Pre-train generator using only MSE loss
 	if check_point == -1:
 		optimizerG = optim.Adam(netG.parameters())
@@ -215,17 +215,17 @@ def main():
 			train_bar.set_description(desc='[%d/%d] D grads:(%f, %f) G grads:(%f, %f) Loss_D: %.4f Loss_G: %.4f = %.4f + %.4f' % (epoch, n_epoch, dtg, dbg, gtg, gbg, d_loss, g_loss, image_loss, adversarial_loss))
 		
 		if use_tensorboard:
-			log_value('d_loss', cache['d_loss']/len(train_loader), epoch)
+			writer.add_scalar('d_loss', cache['d_loss']/len(train_loader), epoch)
 		
-			log_value('mse_loss', cache['mse_loss']/len(train_loader), epoch)
-			#log_value('tv_loss', cache['tv_loss']/len(train_loader), epoch)
-			log_value('adv_loss', cache['adv_loss']/len(train_loader), epoch)
-			log_value('g_loss', cache['g_loss']/len(train_loader), epoch)
+			writer.add_scalar('mse_loss', cache['mse_loss']/len(train_loader), epoch)
+			#writer.add_scalar('tv_loss', cache['tv_loss']/len(train_loader), epoch)
+			writer.add_scalar('adv_loss', cache['adv_loss']/len(train_loader), epoch)
+			writer.add_scalar('g_loss', cache['g_loss']/len(train_loader), epoch)
 			
-			log_value('D top layer gradient', cache['d_top_grad']/len(train_loader), epoch)
-			log_value('D bot layer gradient', cache['d_bot_grad']/len(train_loader), epoch)
-			log_value('G top layer gradient', cache['g_top_grad']/len(train_loader), epoch)
-			log_value('G bot layer gradient', cache['g_bot_grad']/len(train_loader), epoch)
+			writer.add_scalar('D top layer gradient', cache['d_top_grad']/len(train_loader), epoch)
+			writer.add_scalar('D bot layer gradient', cache['d_bot_grad']/len(train_loader), epoch)
+			writer.add_scalar('G top layer gradient', cache['g_top_grad']/len(train_loader), epoch)
+			writer.add_scalar('G bot layer gradient', cache['g_bot_grad']/len(train_loader), epoch)
 		
 		# Save model parameters	
 		if torch.cuda.is_available():
@@ -283,8 +283,8 @@ def main():
 				index += 1
 		
 			if use_tensorboard:			
-				log_value('ssim', cache['ssim']/len(dev_loader), epoch)
-				log_value('psnr', cache['psnr']/len(dev_loader), epoch)
+				writer.add_scalar('ssim', cache['ssim']/len(dev_loader), epoch)
+				writer.add_scalar('psnr', cache['psnr']/len(dev_loader), epoch)
 			
 if __name__ == '__main__':
 	main()
